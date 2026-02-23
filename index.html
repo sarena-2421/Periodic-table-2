@@ -2,7 +2,7 @@
 <html lang="zh-TW">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>化學元素魔法學院</title>
   
   <!-- 引入 Tailwind CSS (負責美化介面) -->
@@ -21,6 +21,12 @@
     }
     .animate-fade-in {
       animation: fadeIn 0.4s ease-out forwards;
+    }
+    /* 隱藏數字輸入框的上下箭頭 */
+    input[type=number]::-webkit-inner-spin-button, 
+    input[type=number]::-webkit-outer-spin-button { 
+      -webkit-appearance: none; 
+      margin: 0; 
     }
   </style>
 </head>
@@ -222,7 +228,7 @@
       { q: '氯化鈉 (NaCl) 晶體中的化學鍵為？', options: ['離子鍵', '共價鍵', '金屬鍵', '氫鍵'], ans: 0, hint: '金屬與非金屬間的鍵結。' },
       { q: '碳-12 和 碳-14 互為？', options: ['同位素', '同分異構物', '同素異形體', '同系物'], ans: 0, hint: '質子相同，中子不同。' },
       { q: '何氣體在常溫純水中溶解度最小？', options: ['氮氣', '氨氣', '氯化氫', '二氧化硫'], ans: 0, hint: '非極性分子。' },
-      { q: '下列何者為「吸熱反應」？', options: ['光合作用', '木材燃燒', '酸鹼中和', '水結冰'], ans: 0, hint: '需要吸收太陽能。' },
+      { q: '下列何者為「吸熱反應」？', options: ['光合作用', '木材燃燃', '酸鹼中和', '水結冰'], ans: 0, hint: '需要吸收太陽能。' },
       { q: '冶煉金屬常用何種物質作廉價「還原劑」？', options: ['一氧化碳', '氧氣', '氯氣', '濃硫酸'], ans: 0, hint: '高爐煉鐵中使用。' },
       { q: '理想氣體常數 R 約為？', options: ['0.082', '8.314', '1.987', '6.02'], ans: 0, hint: '單位為 atm·L/mol·K。' },
       { q: '水分子間的「氫鍵」使沸點如何變化？', options: ['異常升高', '異常降低', '不受影響', '降至零下'], ans: 0, hint: '需要更多能量才能拆散。' },
@@ -241,29 +247,32 @@
       const [currentView, setCurrentView] = useState('menu');
 
       return (
-        <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 text-gray-800 font-sans p-4 md:p-8">
-          <div className="max-w-4xl mx-auto bg-white rounded-3xl shadow-xl overflow-hidden border-4 border-indigo-200">
-            <header className="bg-indigo-600 text-white p-6 text-center relative">
+        <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 text-gray-800 font-sans p-2 sm:p-4 md:p-8 flex flex-col justify-start md:justify-center">
+          <div className="w-full max-w-4xl mx-auto bg-white rounded-2xl md:rounded-3xl shadow-xl overflow-hidden border-2 md:border-4 border-indigo-200">
+            {/* Header: 響應式佈局 (手機端自動改為直排，按鈕在上，不重疊標題) */}
+            <header className="bg-indigo-600 text-white p-4 sm:p-6 flex flex-col md:flex-row items-center justify-between md:justify-center relative">
               {currentView !== 'menu' && (
                 <button 
                   onClick={() => setCurrentView('menu')}
-                  className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white text-indigo-600 px-4 py-2 rounded-full font-bold shadow hover:bg-indigo-50 transition"
+                  className="self-start md:self-auto md:absolute left-4 top-1/2 md:-translate-y-1/2 mb-3 md:mb-0 bg-white text-indigo-600 px-4 py-1.5 md:py-2 rounded-full font-bold shadow hover:bg-indigo-50 transition text-sm md:text-base"
                 >
                   ← 回首頁
                 </button>
               )}
-              <h1 className="text-3xl font-extrabold tracking-wider">🧪 化學元素魔法學院</h1>
-              <p className="mt-2 text-indigo-100">118元素 ・ 離子配對 ・ 化學常識</p>
+              <div className="text-center w-full">
+                <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold tracking-wider">🧪 化學元素魔法學院</h1>
+                <p className="mt-1 md:mt-2 text-xs sm:text-sm md:text-base text-indigo-100">118元素 ・ 離子配對 ・ 化學常識</p>
+              </div>
             </header>
 
-            <div className="p-6 md:p-10 min-h-[500px]">
+            <div className="p-4 sm:p-6 md:p-10 min-h-[400px] md:min-h-[500px]">
               {currentView === 'menu' && <MainMenu setView={setCurrentView} />}
               {currentView === 'learn' && <LearnSection />}
               {currentView === 'elementQuiz' && <ElementQuiz />}
               {currentView === 'compoundGame' && <CompoundGame />}
               {currentView === 'ionSort' && <IonSortGame />}
-              {currentView === 'comprehensiveBasic' && <ComprehensiveQuiz mode="basic" title="🌱 關卡三：常識測驗(基礎)" questionsPool={basicQuestions} goBack={() => setCurrentView('menu')} />}
-              {currentView === 'comprehensiveAdvanced' && <ComprehensiveQuiz mode="advanced" title="🔥 關卡三：常識測驗(進階)" questionsPool={advancedQuestions} goBack={() => setCurrentView('menu')} />}
+              {currentView === 'comprehensiveBasic' && <ComprehensiveQuiz mode="basic" title="🌱 關卡三：常識(基礎)" questionsPool={basicQuestions} goBack={() => setCurrentView('menu')} />}
+              {currentView === 'comprehensiveAdvanced' && <ComprehensiveQuiz mode="advanced" title="🔥 關卡三：常識(進階)" questionsPool={advancedQuestions} goBack={() => setCurrentView('menu')} />}
             </div>
           </div>
         </div>
@@ -277,16 +286,16 @@
         { id: 'elementQuiz', title: '🎯 關卡一：元素單字卡', desc: '118個中英文符號與名稱大挑戰', color: 'bg-amber-100 hover:bg-amber-200 border-amber-300' },
         { id: 'compoundGame', title: '⚖️ 關卡二：化合物配對', desc: '練習正負價數總和為零的拼圖', color: 'bg-blue-100 hover:bg-blue-200 border-blue-300' },
         { id: 'ionSort', title: '⚡ 關卡二：陰陽離子分類', desc: '快速判斷失去或得到電子的離子', color: 'bg-purple-100 hover:bg-purple-200 border-purple-300' },
-        { id: 'comprehensiveBasic', title: '🌱 關卡三：常識測驗(基礎)', desc: '高一化學基礎：分子量、原子結構', color: 'bg-emerald-100 hover:bg-emerald-200 border-emerald-300' },
-        { id: 'comprehensiveAdvanced', title: '🔥 關卡三：常識測驗(進階)', desc: '高一化學進階：氣體定律、濃度計算', color: 'bg-rose-100 hover:bg-rose-200 border-rose-300' },
+        { id: 'comprehensiveBasic', title: '🌱 關卡三：常識(基礎)', desc: '高一化學基礎：分子量、原子結構', color: 'bg-emerald-100 hover:bg-emerald-200 border-emerald-300' },
+        { id: 'comprehensiveAdvanced', title: '🔥 關卡三：常識(進階)', desc: '高一化學進階：氣體定律、濃度計算', color: 'bg-rose-100 hover:bg-rose-200 border-rose-300' },
       ];
 
       return (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-fade-in">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 animate-fade-in">
           {menus.map((m) => (
-            <button key={m.id} onClick={() => setView(m.id)} className={`flex flex-col items-center justify-center p-8 rounded-2xl border-2 transition-all transform hover:scale-105 shadow-sm ${m.color}`}>
-              <h2 className="text-2xl font-bold mb-2 text-gray-800">{m.title}</h2>
-              <p className="text-gray-600 font-medium">{m.desc}</p>
+            <button key={m.id} onClick={() => setView(m.id)} className={`flex flex-col items-center justify-center p-6 md:p-8 rounded-2xl border-2 transition-all transform hover:scale-105 shadow-sm ${m.color}`}>
+              <h2 className="text-xl md:text-2xl font-bold mb-2 text-gray-800">{m.title}</h2>
+              <p className="text-sm md:text-base text-gray-600 font-medium">{m.desc}</p>
             </button>
           ))}
         </div>
@@ -298,7 +307,7 @@
       const [filter, setFilter] = useState('all');
 
       const categories = [
-        { id: 'all', name: '全週期表 (118元素)' },
+        { id: 'all', name: '全週期表' },
         { id: 'alkali', name: '鹼金屬 (1A)' },
         { id: 'alkaline-earth', name: '鹼土金屬 (2A)' },
         { id: 'transition', name: '過渡金屬' },
@@ -327,15 +336,15 @@
       const filteredElements = filter === 'all' ? allElements : allElements.filter(e => e.c === filter);
 
       return (
-        <div className="space-y-6 animate-fade-in">
-          <div className="bg-indigo-50 p-4 md:p-6 rounded-2xl border-l-8 border-indigo-400 shadow-sm">
-            <h2 className="text-2xl font-bold text-indigo-800 mb-4">🧠 週期表主族記憶口訣</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="space-y-4 md:space-y-6 animate-fade-in">
+          <div className="bg-indigo-50 p-4 rounded-2xl border-l-4 md:border-l-8 border-indigo-400 shadow-sm">
+            <h2 className="text-xl md:text-2xl font-bold text-indigo-800 mb-3 md:mb-4">🧠 主族記憶口訣</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
               {groupMnemonics.map(m => (
                 <div key={m.group} className="bg-white p-3 rounded-xl shadow-sm border border-indigo-100">
-                  <div className="text-sm font-bold text-indigo-600 mb-1">{m.group}</div>
-                  <div className="text-lg font-black tracking-widest">{m.els}</div>
-                  <div className="text-sm text-gray-500 mt-1">諧音：<span className="text-red-500 font-bold">{m.hint}</span></div>
+                  <div className="text-xs md:text-sm font-bold text-indigo-600 mb-1">{m.group}</div>
+                  <div className="text-base md:text-lg font-black tracking-widest">{m.els}</div>
+                  <div className="text-xs md:text-sm text-gray-500 mt-1">諧音：<span className="text-red-500 font-bold">{m.hint}</span></div>
                 </div>
               ))}
             </div>
@@ -343,19 +352,19 @@
 
           <div className="flex flex-wrap gap-2 py-2">
             {categories.map(c => (
-              <button key={c.id} onClick={() => setFilter(c.id)} className={`px-4 py-2 rounded-full font-bold text-sm transition-all border-2 ${filter === c.id ? 'bg-indigo-600 text-white border-indigo-600 shadow-md scale-105' : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'}`}>
+              <button key={c.id} onClick={() => setFilter(c.id)} className={`px-3 py-1.5 md:px-4 md:py-2 rounded-full font-bold text-xs md:text-sm transition-all border-2 ${filter === c.id ? 'bg-indigo-600 text-white border-indigo-600 shadow-md scale-105' : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'}`}>
                 {c.name}
               </button>
             ))}
           </div>
 
-          <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 lg:grid-cols-8 gap-2 md:gap-3">
             {filteredElements.map((e) => (
-              <div key={e.id} className={`border-2 p-3 rounded-xl shadow-sm text-center transition transform hover:scale-105 ${catColors[e.c] || 'bg-white border-gray-200'}`}>
-                <div className="text-xs font-bold text-gray-400 text-left mb-1">{e.id}</div>
-                <div className="text-3xl font-black mb-1 text-gray-800">{e.s}</div>
-                <div className="text-lg font-bold text-gray-700">{e.n}</div>
-                <div className="text-xs font-medium opacity-70 mt-1">{e.b}</div>
+              <div key={e.id} className={`border-2 p-2 md:p-3 rounded-xl shadow-sm text-center transition transform hover:scale-105 ${catColors[e.c] || 'bg-white border-gray-200'}`}>
+                <div className="text-[10px] md:text-xs font-bold text-gray-400 text-left mb-1">{e.id}</div>
+                <div className="text-2xl md:text-3xl font-black mb-1 text-gray-800">{e.s}</div>
+                <div className="text-base md:text-lg font-bold text-gray-700">{e.n}</div>
+                <div className="text-[10px] md:text-xs font-medium opacity-70 mt-1">{e.b}</div>
               </div>
             ))}
           </div>
@@ -420,9 +429,9 @@
       if (showResult) {
         return (
           <div className="text-center py-10 animate-fade-in">
-            <h2 className="text-3xl font-bold mb-4">單字卡測驗結束！</h2>
-            <p className="text-2xl mb-8">你的得分：<span className="text-amber-600 font-black text-4xl">{score}</span> / {questions.length}</p>
-            <button onClick={initQuiz} className="bg-amber-500 text-white px-8 py-4 rounded-xl font-bold text-xl hover:bg-amber-600 shadow-md transition transform hover:scale-105">
+            <h2 className="text-2xl md:text-3xl font-bold mb-4">單字卡測驗結束！</h2>
+            <p className="text-xl md:text-2xl mb-8">你的得分：<span className="text-amber-600 font-black text-3xl md:text-4xl">{score}</span> / {questions.length}</p>
+            <button onClick={initQuiz} className="bg-amber-500 text-white px-6 py-3 md:px-8 md:py-4 rounded-xl font-bold text-lg md:text-xl hover:bg-amber-600 shadow-md transition transform hover:scale-105">
               🔄 隨機換下一批單字卡
             </button>
           </div>
@@ -430,26 +439,29 @@
       }
       const q = questions[currentQ];
       return (
-        <div className="max-w-2xl mx-auto py-4 animate-fade-in">
-          <div className="flex justify-between items-center mb-4 bg-gray-100 p-4 rounded-xl">
-            <div className="text-sm text-gray-500 font-bold">進度：{currentQ + 1} / {questions.length} 題</div>
-            <div className="text-sm text-amber-600 font-bold">目前得分：{score}</div>
+        <div className="max-w-2xl mx-auto py-2 md:py-4 animate-fade-in">
+          <div className="flex justify-between items-center mb-4 bg-gray-100 p-3 md:p-4 rounded-xl">
+            <div className="text-xs md:text-sm text-gray-500 font-bold">進度：{currentQ + 1} / {questions.length} 題</div>
+            <div className="text-xs md:text-sm text-amber-600 font-bold">目前得分：{score}</div>
           </div>
-          <div className="bg-amber-50 border-4 border-amber-300 p-12 rounded-3xl my-6 shadow-md text-center">
-            <div className="text-lg font-bold text-amber-600 mb-4">{q.qText}</div>
-            <h2 className="text-7xl font-black text-gray-800 tracking-wider drop-shadow-sm">{q.targetDisplay}</h2>
+          
+          <div className="bg-amber-50 border-4 border-amber-300 p-8 md:p-12 rounded-2xl md:rounded-3xl my-4 md:my-6 shadow-md text-center">
+            <div className="text-base md:text-lg font-bold text-amber-600 mb-3 md:mb-4">{q.qText}</div>
+            <h2 className="text-5xl md:text-7xl font-black text-gray-800 tracking-wider drop-shadow-sm">{q.targetDisplay}</h2>
           </div>
-          <div className="grid grid-cols-2 gap-4 mb-6">
+          
+          {/* 在手機端稍微縮小 Padding 和文字大小，防止擠出畫面 */}
+          <div className="grid grid-cols-2 gap-3 md:gap-4 mb-4 md:mb-6">
             {q.options.map((opt, idx) => (
-              <button key={idx} onClick={() => handleAnswer(idx)} disabled={!!feedback} className={`p-6 text-3xl font-bold rounded-2xl border-2 transition-all ${feedback && idx === q.ans ? 'bg-green-200 border-green-500 shadow-lg transform scale-105' : feedback && idx !== q.ans ? 'bg-gray-100 border-gray-200 text-gray-400 opacity-50' : 'bg-white border-amber-200 text-gray-700 hover:bg-amber-50 hover:shadow-md'}`}>
+              <button key={idx} onClick={() => handleAnswer(idx)} disabled={!!feedback} className={`p-4 md:p-6 text-xl md:text-3xl font-bold rounded-2xl border-2 transition-all ${feedback && idx === q.ans ? 'bg-green-200 border-green-500 shadow-lg transform scale-105' : feedback && idx !== q.ans ? 'bg-gray-100 border-gray-200 text-gray-400 opacity-50' : 'bg-white border-amber-200 text-gray-700 hover:bg-amber-50 hover:shadow-md'}`}>
                 {opt}
               </button>
             ))}
           </div>
           {feedback && (
-            <div className={`p-4 rounded-xl border-2 animate-bounce shadow-sm ${feedback.correct ? 'bg-green-100 border-green-400 text-green-800' : 'bg-red-100 border-red-400 text-red-800'}`}>
-              <div className="font-bold text-xl mb-1">{feedback.text}</div>
-              <div className="text-md mt-1">💡 記憶提示：{feedback.hint}</div>
+            <div className={`p-3 md:p-4 rounded-xl border-2 animate-bounce shadow-sm ${feedback.correct ? 'bg-green-100 border-green-400 text-green-800' : 'bg-red-100 border-red-400 text-red-800'}`}>
+              <div className="font-bold text-lg md:text-xl mb-1">{feedback.text}</div>
+              <div className="text-sm md:text-md mt-1">💡 記憶提示：{feedback.hint}</div>
             </div>
           )}
         </div>
@@ -491,36 +503,38 @@
       };
 
       return (
-        <div className="py-6 animate-fade-in text-center">
-          <div className="mb-8">
-            <h2 className="text-2xl font-bold text-indigo-800 mb-2">⚖️ 組合化合物 (價數和為零)</h2>
-            <p className="text-gray-600">你需要幾個陽離子和幾個陰離子，才能讓化合物的「總電荷」為 0 呢？(請寫最簡整數比)</p>
+        <div className="py-4 md:py-6 animate-fade-in text-center">
+          <div className="mb-6 md:mb-8">
+            <h2 className="text-xl md:text-2xl font-bold text-indigo-800 mb-2">⚖️ 組合化合物 (價數和為零)</h2>
+            <p className="text-sm md:text-base text-gray-600">需要幾個陽離子和陰離子，才能讓「總電荷」為 0 呢？(請寫最簡整數比)</p>
           </div>
-          <div className="flex flex-col md:flex-row justify-center items-center gap-6 mb-8">
-            <div className="bg-red-50 border-4 border-red-300 p-6 rounded-2xl w-48 text-center shadow-lg">
-              <div className="text-4xl font-bold text-red-600 mb-2">{renderIon(cat)}</div>
-              <div className="text-sm font-bold text-red-800">{cat.name}</div>
+          
+          {/* 手機端改為上下堆疊或並排時自動縮小寬度 */}
+          <div className="flex flex-col sm:flex-row justify-center items-center gap-4 sm:gap-6 mb-6 md:mb-8">
+            <div className="bg-red-50 border-2 sm:border-4 border-red-300 p-4 sm:p-6 rounded-2xl w-full sm:w-48 text-center shadow-lg">
+              <div className="text-3xl sm:text-4xl font-bold text-red-600 mb-2">{renderIon(cat)}</div>
+              <div className="text-xs sm:text-sm font-bold text-red-800">{cat.name}</div>
               <div className="mt-4">
-                <input type="number" min="1" value={inputCat} onChange={(e) => setInputCat(e.target.value)} placeholder="數量" className="w-24 p-2 text-center text-xl font-bold rounded border-2 border-red-300" />
-                <span className="ml-2 font-bold text-gray-500">個</span>
+                <input type="number" min="1" value={inputCat} onChange={(e) => setInputCat(e.target.value)} placeholder="數量" className="w-16 sm:w-24 p-2 text-center text-lg sm:text-xl font-bold rounded border-2 border-red-300" />
+                <span className="ml-2 font-bold text-sm sm:text-base text-gray-500">個</span>
               </div>
             </div>
-            <div className="text-5xl font-black text-gray-300">+</div>
-            <div className="bg-blue-50 border-4 border-blue-300 p-6 rounded-2xl w-48 text-center shadow-lg">
-              <div className="text-4xl font-bold text-blue-600 mb-2">{renderIon(an)}</div>
-              <div className="text-sm font-bold text-blue-800">{an.name}</div>
+            <div className="text-4xl sm:text-5xl font-black text-gray-300">+</div>
+            <div className="bg-blue-50 border-2 sm:border-4 border-blue-300 p-4 sm:p-6 rounded-2xl w-full sm:w-48 text-center shadow-lg">
+              <div className="text-3xl sm:text-4xl font-bold text-blue-600 mb-2">{renderIon(an)}</div>
+              <div className="text-xs sm:text-sm font-bold text-blue-800">{an.name}</div>
               <div className="mt-4">
-                <input type="number" min="1" value={inputAn} onChange={(e) => setInputAn(e.target.value)} placeholder="數量" className="w-24 p-2 text-center text-xl font-bold rounded border-2 border-blue-300" />
-                <span className="ml-2 font-bold text-gray-500">個</span>
+                <input type="number" min="1" value={inputAn} onChange={(e) => setInputAn(e.target.value)} placeholder="數量" className="w-16 sm:w-24 p-2 text-center text-lg sm:text-xl font-bold rounded border-2 border-blue-300" />
+                <span className="ml-2 font-bold text-sm sm:text-base text-gray-500">個</span>
               </div>
             </div>
           </div>
-          <div className="space-x-4 mb-6">
-            <button onClick={checkAnswer} className="bg-green-500 text-white px-8 py-3 rounded-xl font-bold text-xl hover:bg-green-600 shadow transition">送出檢查 ✅</button>
-            {message && message.type === 'success' && <button onClick={newQuestion} className="bg-indigo-600 text-white px-8 py-3 rounded-xl font-bold text-xl hover:bg-indigo-700 shadow transition">下一題 ➡️</button>}
+          <div className="space-y-3 sm:space-y-0 sm:space-x-4 mb-6 flex flex-col sm:flex-row justify-center items-center">
+            <button onClick={checkAnswer} className="w-full sm:w-auto bg-green-500 text-white px-6 py-3 sm:px-8 sm:py-3 rounded-xl font-bold text-lg sm:text-xl hover:bg-green-600 shadow transition">送出檢查 ✅</button>
+            {message && message.type === 'success' && <button onClick={newQuestion} className="w-full sm:w-auto bg-indigo-600 text-white px-6 py-3 sm:px-8 sm:py-3 rounded-xl font-bold text-lg sm:text-xl hover:bg-indigo-700 shadow transition">下一題 ➡️</button>}
           </div>
           {message && (
-            <div className={`max-w-md mx-auto p-4 rounded-xl font-bold border-2 ${message.type === 'success' ? 'bg-green-100 border-green-500 text-green-800' : message.type === 'warning' ? 'bg-yellow-100 border-yellow-500 text-yellow-800' : 'bg-red-100 border-red-500 text-red-800'}`}>
+            <div className={`max-w-md mx-auto p-3 sm:p-4 rounded-xl font-bold border-2 text-sm sm:text-base ${message.type === 'success' ? 'bg-green-100 border-green-500 text-green-800' : message.type === 'warning' ? 'bg-yellow-100 border-yellow-500 text-yellow-800' : 'bg-red-100 border-red-500 text-red-800'}`}>
               {message.text}
             </div>
           )}
@@ -554,20 +568,22 @@
       };
 
       return (
-        <div className="py-6 text-center max-w-lg mx-auto animate-fade-in">
-          <div className="flex justify-between items-center mb-6 bg-gray-100 p-4 rounded-xl font-bold">
-            <div className="text-xl text-indigo-700">分數: {score}</div>
-            <div className="text-xl text-orange-500">🔥 連勝: {streak}</div>
+        <div className="py-4 md:py-6 text-center max-w-lg mx-auto animate-fade-in">
+          <div className="flex justify-between items-center mb-4 md:mb-6 bg-gray-100 p-3 md:p-4 rounded-xl font-bold">
+            <div className="text-base md:text-xl text-indigo-700">分數: {score}</div>
+            <div className="text-base md:text-xl text-orange-500">🔥 連勝: {streak}</div>
           </div>
-          <div className="bg-white border-4 border-dashed border-indigo-200 p-10 rounded-3xl my-8 shadow-sm">
-            <div className="text-6xl font-black text-gray-800 mb-2">{renderIon(currentIon)}</div>
-            <div className="text-xl text-gray-600 font-bold">{currentIon.name}</div>
+          
+          <div className="bg-white border-2 md:border-4 border-dashed border-indigo-200 p-8 md:p-10 rounded-2xl md:rounded-3xl my-6 md:my-8 shadow-sm">
+            <div className="text-5xl md:text-6xl font-black text-gray-800 mb-2">{renderIon(currentIon)}</div>
+            <div className="text-lg md:text-xl text-gray-600 font-bold">{currentIon.name}</div>
           </div>
-          <div className="grid grid-cols-2 gap-6">
-            <button onClick={() => handleSort('cation')} className="bg-red-100 hover:bg-red-200 border-4 border-red-400 text-red-800 font-bold text-2xl py-6 rounded-2xl transition transform hover:scale-105">陽離子<br/><span className="text-sm">(帶正電 +)</span></button>
-            <button onClick={() => handleSort('anion')} className="bg-blue-100 hover:bg-blue-200 border-4 border-blue-400 text-blue-800 font-bold text-2xl py-6 rounded-2xl transition transform hover:scale-105">陰離子<br/><span className="text-sm">(帶負電 -)</span></button>
+          
+          <div className="grid grid-cols-2 gap-3 md:gap-6">
+            <button onClick={() => handleSort('cation')} className="bg-red-100 hover:bg-red-200 border-2 md:border-4 border-red-400 text-red-800 font-bold text-lg md:text-2xl py-4 md:py-6 rounded-2xl transition transform hover:scale-105">陽離子<br/><span className="text-xs md:text-sm">(帶正電 +)</span></button>
+            <button onClick={() => handleSort('anion')} className="bg-blue-100 hover:bg-blue-200 border-2 md:border-4 border-blue-400 text-blue-800 font-bold text-lg md:text-2xl py-4 md:py-6 rounded-2xl transition transform hover:scale-105">陰離子<br/><span className="text-xs md:text-sm">(帶負電 -)</span></button>
           </div>
-          {feedback && <div className={`mt-6 p-4 rounded-xl font-bold text-lg ${feedback.correct ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>{feedback.text}</div>}
+          {feedback && <div className={`mt-4 md:mt-6 p-3 md:p-4 rounded-xl font-bold text-base md:text-lg ${feedback.correct ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>{feedback.text}</div>}
         </div>
       );
     }
@@ -604,13 +620,13 @@
 
       if (gameState === 'setup') {
         return (
-          <div className="text-center py-10 animate-fade-in max-w-2xl mx-auto">
-            <h2 className="text-3xl font-extrabold mb-4 text-gray-800">{title}</h2>
-            <p className="text-lg text-gray-600 mb-8">題庫中共 {questionsPool.length} 題。請選擇你要挑戰的題數！</p>
-            <div className="flex flex-col sm:flex-row justify-center gap-4">
-              <button onClick={() => startGame(10)} className="bg-emerald-500 hover:bg-emerald-600 text-white px-8 py-4 rounded-xl font-bold text-xl shadow transform hover:scale-105">挑戰 10 題</button>
-              <button onClick={() => startGame(20)} className="bg-teal-500 hover:bg-teal-600 text-white px-8 py-4 rounded-xl font-bold text-xl shadow transform hover:scale-105">挑戰 20 題</button>
-              <button onClick={() => startGame(questionsPool.length)} className="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-4 rounded-xl font-bold text-xl shadow transform hover:scale-105">全部挑戰 ({questionsPool.length} 題)</button>
+          <div className="text-center py-6 md:py-10 animate-fade-in max-w-2xl mx-auto">
+            <h2 className="text-2xl md:text-3xl font-extrabold mb-3 md:mb-4 text-gray-800">{title}</h2>
+            <p className="text-base md:text-lg text-gray-600 mb-6 md:mb-8">題庫中共 {questionsPool.length} 題。請選擇你要挑戰的題數！</p>
+            <div className="flex flex-col sm:flex-row justify-center gap-3 md:gap-4">
+              <button onClick={() => startGame(10)} className="bg-emerald-500 hover:bg-emerald-600 text-white px-6 py-3 sm:px-8 sm:py-4 rounded-xl font-bold text-lg sm:text-xl shadow transform hover:scale-105">挑戰 10 題</button>
+              <button onClick={() => startGame(20)} className="bg-teal-500 hover:bg-teal-600 text-white px-6 py-3 sm:px-8 sm:py-4 rounded-xl font-bold text-lg sm:text-xl shadow transform hover:scale-105">挑戰 20 題</button>
+              <button onClick={() => startGame(questionsPool.length)} className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 sm:px-8 sm:py-4 rounded-xl font-bold text-lg sm:text-xl shadow transform hover:scale-105">全部挑戰 ({questionsPool.length} 題)</button>
             </div>
           </div>
         );
@@ -619,35 +635,37 @@
       if (gameState === 'result') {
         const percentage = Math.round((score / quizQuestions.length) * 100);
         return (
-          <div className="text-center py-10 animate-fade-in max-w-2xl mx-auto">
-            <h2 className="text-3xl font-bold mb-4">測驗結束！</h2>
-            <div className="text-6xl mb-6">{percentage >= 80 ? '🏆' : percentage >= 60 ? '👍' : '💪'}</div>
-            <p className="text-2xl mb-4 text-gray-700">你的得分：<span className="text-indigo-600 font-black text-4xl">{score}</span> / {quizQuestions.length}</p>
-            <p className="text-xl mb-8 font-bold text-gray-500">正確率：{percentage}%</p>
-            <button onClick={() => setGameState('setup')} className="bg-indigo-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-indigo-700">🔄 重新選擇題數</button>
+          <div className="text-center py-6 md:py-10 animate-fade-in max-w-2xl mx-auto">
+            <h2 className="text-2xl md:text-3xl font-bold mb-4">測驗結束！</h2>
+            <div className="text-5xl md:text-6xl mb-4 md:mb-6">{percentage >= 80 ? '🏆' : percentage >= 60 ? '👍' : '💪'}</div>
+            <p className="text-xl md:text-2xl mb-4 text-gray-700">你的得分：<span className="text-indigo-600 font-black text-3xl md:text-4xl">{score}</span> / {quizQuestions.length}</p>
+            <p className="text-lg md:text-xl mb-6 md:mb-8 font-bold text-gray-500">正確率：{percentage}%</p>
+            <button onClick={() => setGameState('setup')} className="bg-indigo-600 text-white px-6 py-3 md:px-8 md:py-3 rounded-xl font-bold hover:bg-indigo-700">🔄 重新選擇題數</button>
           </div>
         );
       }
 
       const q = quizQuestions[currentQ];
       return (
-        <div className="max-w-3xl mx-auto py-4 animate-fade-in">
-          <div className="flex justify-between items-center mb-6 bg-gray-100 p-4 rounded-xl">
-            <div className="text-lg text-gray-500 font-bold">進度：{currentQ + 1} / {quizQuestions.length}</div>
-            <div className="text-lg text-indigo-600 font-bold">目前得分：{score}</div>
+        <div className="max-w-3xl mx-auto py-2 md:py-4 animate-fade-in">
+          <div className="flex justify-between items-center mb-4 md:mb-6 bg-gray-100 p-3 md:p-4 rounded-xl">
+            <div className="text-sm md:text-lg text-gray-500 font-bold">進度：{currentQ + 1} / {quizQuestions.length}</div>
+            <div className="text-sm md:text-lg text-indigo-600 font-bold">目前得分：{score}</div>
           </div>
-          <h2 className="text-2xl font-bold mb-6 text-gray-800 leading-relaxed">{q.q}</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+          <h2 className="text-lg md:text-2xl font-bold mb-4 md:mb-6 text-gray-800 leading-relaxed">{q.q}</h2>
+          
+          {/* 長選項在手機上自動改為單欄排列，避免文字被切掉 */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4 mb-4 md:mb-6">
             {q.options.map((opt, idx) => (
-              <button key={idx} onClick={() => handleAnswer(idx)} disabled={!!feedback} className={`p-5 text-lg font-bold rounded-xl border-2 transition-all ${feedback && idx === q.ans ? 'bg-green-200 border-green-500 text-green-900 shadow-md transform scale-105' : feedback && idx !== q.ans ? 'bg-gray-100 border-gray-200 text-gray-400 opacity-60' : 'bg-white border-indigo-200 text-gray-700 hover:bg-indigo-50 hover:shadow'}`}>
+              <button key={idx} onClick={() => handleAnswer(idx)} disabled={!!feedback} className={`p-4 md:p-5 text-base md:text-lg font-bold rounded-xl border-2 transition-all ${feedback && idx === q.ans ? 'bg-green-200 border-green-500 text-green-900 shadow-md transform scale-105' : feedback && idx !== q.ans ? 'bg-gray-100 border-gray-200 text-gray-400 opacity-60' : 'bg-white border-indigo-200 text-gray-700 hover:bg-indigo-50 hover:shadow'}`}>
                 {opt}
               </button>
             ))}
           </div>
           {feedback && (
-            <div className={`p-4 rounded-xl border-2 animate-bounce shadow-sm ${feedback.correct ? 'bg-green-100 border-green-400 text-green-800' : 'bg-red-100 border-red-400 text-red-800'}`}>
-              <div className="font-bold text-xl mb-1">{feedback.text}</div>
-              <div className="text-md mt-2">💡 解析：{feedback.hint}</div>
+            <div className={`p-3 md:p-4 rounded-xl border-2 animate-bounce shadow-sm ${feedback.correct ? 'bg-green-100 border-green-400 text-green-800' : 'bg-red-100 border-red-400 text-red-800'}`}>
+              <div className="font-bold text-lg md:text-xl mb-1">{feedback.text}</div>
+              <div className="text-sm md:text-md mt-1 md:mt-2">💡 解析：{feedback.hint}</div>
             </div>
           )}
         </div>
