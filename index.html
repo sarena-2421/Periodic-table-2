@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>化學元素魔法學院</title>
+  
+  <!-- 引入 Tailwind CSS (負責美化介面) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- 引入 React 核心與 Babel (負責網頁邏輯) -->
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <!-- 自訂簡單動畫 -->
+  <style>
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-fade-in {
+      animation: fadeIn 0.4s ease-out forwards;
+    }
+  </style>
+</head>
+<body class="bg-gray-100">
+  <!-- React 應用程式的掛載點 -->
+  <div id="root"></div>
+
+  <!-- 應用程式邏輯開始 -->
+  <script type="text/babel">
+    const { useState, useEffect } = React;
+
+    // ================= 資料庫區塊 =================
+    const allElements = [
+      { id: 1, s: 'H', n: '氫', b: 'ㄑㄧㄥ', c: 'nonmetal' }, { id: 2, s: 'He', n: '氦', b: 'ㄏㄞˋ', c: 'noble-gas' },
+      { id: 3, s: 'Li', n: '鋰', b: 'ㄌㄧˇ', c: 'alkali' }, { id: 4, s: 'Be', n: '鈹', b: 'ㄆㄧˊ', c: 'alkaline-earth' },
+      { id: 5, s: 'B', n: '硼', b: 'ㄆㄥˊ', c: 'metalloid' }, { id: 6, s: 'C', n: '碳', b: 'ㄊㄢˋ', c: 'nonmetal' },
+      { id: 7, s: 'N', n: '氮', b: 'ㄉㄢˋ', c: 'nonmetal' }, { id: 8, s: 'O', n: '氧', b: 'ㄧㄤˇ', c: 'nonmetal' },
+      { id: 9, s: 'F', n: '氟', b: 'ㄈㄨˊ', c: 'halogen' }, { id: 10, s: 'Ne', n: '氖', b: 'ㄋㄞˇ', c: 'noble-gas' },
+      { id: 11, s: 'Na', n: '鈉', b: 'ㄋㄚˋ', c: 'alkali' }, { id: 12, s: 'Mg', n: '鎂', b: 'ㄇㄟˇ', c: 'alkaline-earth' },
+      { id: 13, s: 'Al', n: '鋁', b: 'ㄌㄩˇ', c: 'post-transition' }, { id: 14, s: 'Si', n: '矽', b: 'ㄒㄧˋ', c: 'metalloid' },
+      { id: 15, s: 'P', n: '磷', b: 'ㄌㄧㄣˊ', c: 'nonmetal' }, { id: 16, s: 'S', n: '硫', b: 'ㄌㄧㄡˊ', c: 'nonmetal' },
+      { id: 17, s: 'Cl', n: '氯', b: 'ㄌㄩˋ', c: 'halogen' }, { id: 18, s: 'Ar', n: '氬', b: 'ㄧㄚˋ', c: 'noble-gas' },
+      { id: 19, s: 'K', n: '鉀', b: 'ㄐㄧㄚˇ', c: 'alkali' }, { id: 20, s: 'Ca', n: '鈣', b: 'ㄍㄞˋ', c: 'alkaline-earth' },
+      { id: 21, s: 'Sc', n: '鈧', b: 'ㄎㄤˋ', c: 'transition' }, { id: 22, s: 'Ti', n: '鈦', b: 'ㄊㄞˋ', c: 'transition' },
+      { id: 23, s: 'V', n: '釩', b: 'ㄈㄢˊ', c: 'transition' }, { id: 24, s: 'Cr', n: '鉻', b: 'ㄍㄜˋ', c: 'transition' },
+      { id: 25, s: 'Mn', n: '錳', b: 'ㄇㄥˇ', c: 'transition' }, { id: 26, s: 'Fe', n: '鐵', b: 'ㄊㄧㄝˇ', c: 'transition' },
+      { id: 27, s: 'Co', n: '鈷', b: 'ㄍㄨˇ', c: 'transition' }, { id: 28, s: 'Ni', n: '鎳', b: 'ㄋㄧㄝˋ', c: 'transition' },
+      { id: 29, s: 'Cu', n: '銅', b: 'ㄊㄨㄥˊ', c: 'transition' }, { id: 30, s: 'Zn', n: '鋅', b: 'ㄒㄧㄣ', c: 'transition' },
+      { id: 31, s: 'Ga', n: '鎵', b: 'ㄐㄧㄚ', c: 'post-transition' }, { id: 32, s: 'Ge', n: '鍺', b: 'ㄓㄜˇ', c: 'metalloid' },
+      { id: 33, s: 'As', n: '砷', b: 'ㄕㄣ', c: 'metalloid' }, { id: 34, s: 'Se', n: '硒', b: 'ㄒㄧ', c: 'nonmetal' },
+      { id: 35, s: 'Br', n: '溴', b: 'ㄒㄧㄡˋ', c: 'halogen' }, { id: 36, s: 'Kr', n: '氪', b: 'ㄎㄜˋ', c: 'noble-gas' },
+      { id: 37, s: 'Rb', n: '銣', b: 'ㄖㄨˊ', c: 'alkali' }, { id: 38, s: 'Sr', n: '鍶', b: 'ㄙ', c: 'alkaline-earth' },
+      { id: 39, s: 'Y', n: '釔', b: 'ㄧˇ', c: 'transition' }, { id: 40, s: 'Zr', n: '鋯', b: 'ㄍㄠˋ', c: 'transition' },
+      { id: 41, s: 'Nb', n: '鈮', b: 'ㄋㄧˊ', c: 'transition' }, { id: 42, s: 'Mo', n: '鉬', b: 'ㄇㄨˋ', c: 'transition' },
+      { id: 43, s: 'Tc', n: '鎝', b: 'ㄉㄚ', c: 'transition' }, { id: 44, s: 'Ru', n: '釕', b: 'ㄌㄧㄠˇ', c: 'transition' },
+      { id: 45, s: 'Rh', n: '銠', b: 'ㄌㄠˇ', c: 'transition' }, { id: 46, s: 'Pd', n: '鈀', b: 'ㄅㄚˇ', c: 'transition' },
+      { id: 47, s: 'Ag', n: '銀', b: 'ㄧㄣˊ', c: 'transition' }, { id: 48, s: 'Cd', n: '鎘', b: 'ㄍㄜˊ', c: 'transition' },
+      { id: 49, s: 'In', n: '銦', b: 'ㄧㄣ', c: 'post-transition' }, { id: 50, s: 'Sn', n: '錫', b: 'ㄒㄧˊ', c: 'post-transition' },
+      { id: 51, s: 'Sb', n: '銻', b: 'ㄊㄧˋ', c: 'metalloid' }, { id: 52, s: 'Te', n: '碲', b: 'ㄉㄧˋ', c: 'metalloid' },
+      { id: 53, s: 'I', n: '碘', b: 'ㄉㄧㄢˇ', c: 'halogen' }, { id: 54, s: 'Xe', n: '氙', b: 'ㄒㄧㄢ', c: 'noble-gas' },
+      { id: 55, s: 'Cs', n: '銫', b: 'ㄙㄜˋ', c: 'alkali' }, { id: 56, s: 'Ba', n: '鋇', b: 'ㄅㄟˋ', c: 'alkaline-earth' },
+      { id: 57, s: 'La', n: '鑭', b: 'ㄌㄢˊ', c: 'lanthanide' }, { id: 58, s: 'Ce', n: '鈰', b: 'ㄕˋ', c: 'lanthanide' },
+      { id: 59, s: 'Pr', n: '鐠', b: 'ㄆㄨˇ', c: 'lanthanide' }, { id: 60, s: 'Nd', n: '釹', b: 'ㄋㄩˇ', c: 'lanthanide' },
+      { id: 61, s: 'Pm', n: '鉕', b: 'ㄆㄛˇ', c: 'lanthanide' }, { id: 62, s: 'Sm', n: '釤', b: 'ㄕㄢ', c: 'lanthanide' },
+      { id: 63, s: 'Eu', n: '銪', b: 'ㄧㄡˇ', c: 'lanthanide' }, { id: 64, s: 'Gd', n: '釓', b: 'ㄍㄚˊ', c: 'lanthanide' },
+      { id: 65, s: 'Tb', n: '鋱', b: 'ㄊㄜˋ', c: 'lanthanide' }, { id: 66, s: 'Dy', n: '鏑', b: 'ㄉㄧ', c: 'lanthanide' },
+      { id: 67, s: 'Ho', n: '鈥', b: 'ㄏㄨㄛˇ', c: 'lanthanide' }, { id: 68, s: 'Er', n: '鉺', b: 'ㄦˇ', c: 'lanthanide' },
+      { id: 69, s: 'Tm', n: '銩', b: 'ㄉㄧㄡ', c: 'lanthanide' }, { id: 70, s: 'Yb', n: '鐿', b: 'ㄧˋ', c: 'lanthanide' },
+      { id: 71, s: 'Lu', n: '鑥', b: 'ㄌㄨˇ', c: 'lanthanide' }, { id: 72, s: 'Hf', n: '鉿', b: 'ㄏㄚ', c: 'transition' },
+      { id: 73, s: 'Ta', n: '鉭', b: 'ㄊㄢˇ', c: 'transition' }, { id: 74, s: 'W', n: '鎢', b: 'ㄨ', c: 'transition' },
+      { id: 75, s: 'Re', n: '錸', b: 'ㄌㄞˊ', c: 'transition' }, { id: 76, s: 'Os', n: '鋨', b: 'ㄜˊ', c: 'transition' },
+      { id: 77, s: 'Ir', n: '銥', b: 'ㄧ', c: 'transition' }, { id: 78, s: 'Pt', n: '鉑', b: 'ㄅㄛˊ', c: 'transition' },
+      { id: 79, s: 'Au', n: '金', b: 'ㄐㄧㄣ', c: 'transition' }, { id: 80, s: 'Hg', n: '汞', b: 'ㄍㄨㄥˇ', c: 'transition' },
+      { id: 81, s: 'Tl', n: '鉈', b: 'ㄊㄚ', c: 'post-transition' }, { id: 82, s: 'Pb', n: '鉛', b: 'ㄑㄧㄢ', c: 'post-transition' },
+      { id: 83, s: 'Bi', n: '鉍', b: 'ㄅㄧˋ', c: 'post-transition' }, { id: 84, s: 'Po', n: '釙', b: 'ㄆㄛ', c: 'metalloid' },
+      { id: 85, s: 'At', n: '砈', b: 'ㄜˋ', c: 'halogen' }, { id: 86, s: 'Rn', n: '氡', b: 'ㄉㄨㄥ', c: 'noble-gas' },
+      { id: 87, s: 'Fr', n: '鍅', b: 'ㄈㄚˇ', c: 'alkali' }, { id: 88, s: 'Ra', n: '鐳', b: 'ㄌㄟˊ', c: 'alkaline-earth' },
+      { id: 89, s: 'Ac', n: '錒', b: 'ㄚ', c: 'actinide' }, { id: 90, s: 'Th', n: '釷', b: 'ㄊㄨˇ', c: 'actinide' },
+      { id: 91, s: 'Pa', n: '鏷', b: 'ㄆㄨˊ', c: 'actinide' }, { id: 92, s: 'U', n: '鈾', b: 'ㄧㄡˋ', c: 'actinide' },
+      { id: 93, s: 'Np', n: '錼', b: 'ㄋㄞˋ', c: 'actinide' }, { id: 94, s: 'Pu', n: '鈽', b: 'ㄅㄨˋ', c: 'actinide' },
+      { id: 95, s: 'Am', n: '鋂', b: 'ㄇㄟˇ', c: 'actinide' }, { id: 96, s: 'Cm', n: '鋦', b: 'ㄐㄩˊ', c: 'actinide' },
+      { id: 97, s: 'Bk', n: '鉳', b: 'ㄅㄟˇ', c: 'actinide' }, { id: 98, s: 'Cf', n: '鉲', b: 'ㄎㄚˇ', c: 'actinide' },
+      { id: 99, s: 'Es', n: '鑀', b: 'ㄞˋ', c: 'actinide' }, { id: 100, s: 'Fm', n: '鐨', b: 'ㄈㄟˋ', c: 'actinide' },
+      { id: 101, s: 'Md', n: '鍆', b: 'ㄇㄣˊ', c: 'actinide' }, { id: 102, s: 'No', n: '鍩', b: 'ㄋㄨㄛˋ', c: 'actinide' },
+      { id: 103, s: 'Lr', n: '鐒', b: 'ㄌㄠˊ', c: 'actinide' }, { id: 104, s: 'Rf', n: '鑪', b: 'ㄌㄨˊ', c: 'transition' },
+      { id: 105, s: 'Db', n: '𨧀', b: 'ㄉㄨˋ', c: 'transition' }, { id: 106, s: 'Sg', n: '𨭎', b: 'ㄒㄧˇ', c: 'transition' },
+      { id: 107, s: 'Bh', n: '𨨏', b: 'ㄅㄛ', c: 'transition' }, { id: 108, s: 'Hs', n: '𨭆', b: 'ㄏㄟ', c: 'transition' },
+      { id: 109, s: 'Mt', n: '䥑', b: 'ㄇㄞˋ', c: 'transition' }, { id: 110, s: 'Ds', n: '鐽', b: 'ㄉㄚˊ', c: 'transition' },
+      { id: 111, s: 'Rg', n: '錀', b: 'ㄌㄨㄣˊ', c: 'transition' }, { id: 112, s: 'Cn', n: '鎶', b: 'ㄍㄜ', c: 'transition' },
+      { id: 113, s: 'Nh', n: '鉨', b: 'ㄋㄧˇ', c: 'post-transition' }, { id: 114, s: 'Fl', n: '鈇', b: 'ㄈㄨ', c: 'post-transition' },
+      { id: 115, s: 'Mc', n: '鏌', b: 'ㄇㄛˋ', c: 'post-transition' }, { id: 116, s: 'Lv', n: '鉝', b: 'ㄌㄧˋ', c: 'post-transition' },
+      { id: 117, s: 'Ts', n: '鿬', b: 'ㄊㄧㄢˊ', c: 'halogen' }, { id: 118, s: 'Og', n: '鿫', b: 'ㄠˋ', c: 'noble-gas' }
+    ];
+
+    const groupMnemonics = [
+      { group: '1A 鹼金屬', els: '鋰鈉鉀銣銫鍅', hint: '李哪家如色法' },
+      { group: '2A 鹼土金', els: '鈹鎂鈣鍶鋇鐳', hint: '皮美蓋斯被雷' },
+      { group: '3A 硼族', els: '硼鋁鎵銦鉈', hint: '捧女嫁因他' },
+      { group: '4A 碳族', els: '碳矽鍺錫鉛', hint: '碳息者昔牽' },
+      { group: '5A 氮族', els: '氮磷砷銻鉍', hint: '但臨深啼泣' },
+      { group: '6A 氧族', els: '氧硫硒碲釙', hint: '楊柳喜遞波' },
+      { group: '7A 鹵素', els: '氟氯溴碘砈', hint: '佛綠臭典餓' },
+      { group: '8A 惰性氣', els: '氦氖氬氪氙氡', hint: '害奶亞克仙冬' },
+    ];
+
+    const cations = [
+      { base: 'Na', name: '鈉離子', charge: 1, chargeStr: '+' },
+      { base: 'K', name: '鉀離子', charge: 1, chargeStr: '+' },
+      { base: 'Mg', name: '鎂離子', charge: 2, chargeStr: '2+' },
+      { base: 'Ca', name: '鈣離子', charge: 2, chargeStr: '2+' },
+      { base: 'Al', name: '鋁離子', charge: 3, chargeStr: '3+' },
+      { base: 'Zn', name: '鋅離子', charge: 2, chargeStr: '2+' },
+    ];
+
+    const anions = [
+      { base: 'F', name: '氟離子', charge: -1, chargeStr: '-' },
+      { base: 'Cl', name: '氯離子', charge: -1, chargeStr: '-' },
+      { base: 'O', name: '氧離子', charge: -2, chargeStr: '2-' },
+      { base: 'S', name: '硫離子', charge: -2, chargeStr: '2-' },
+      { base: 'SO', sub: '4', name: '硫酸根', charge: -2, chargeStr: '2-' },
+      { base: 'NO', sub: '3', name: '硝酸根', charge: -1, chargeStr: '-' },
+      { base: 'OH', name: '氫氧根', charge: -1, chargeStr: '-' },
+    ];
+
+    const basicQuestions = [
+      { q: '1莫耳的碳原子質量為多少克？', options: ['12', '6', '24', '1'], ans: 0, hint: '碳的原子量是12。' },
+      { q: '水 (H2O) 的分子量是多少？', options: ['16', '18', '20', '10'], ans: 1, hint: 'H=1, O=16。' },
+      { q: '亞佛加厥常數大約是多少？', options: ['6.02 × 10²³', '3.14', '9.8', '1.6 × 10⁻¹⁹'], ans: 0, hint: '這是1莫耳粒子所含的數量。' },
+      { q: '二氧化碳 (CO2) 的分子量為？', options: ['28', '44', '32', '18'], ans: 1, hint: 'C=12, O=16，12+(16×2)。' },
+      { q: '葡萄糖 (C6H12O6) 的分子量為？', options: ['180', '342', '90', '150'], ans: 0, hint: '(12×6) + (1×12) + (16×6)。' },
+      { q: '體積莫耳濃度 (M) 的定義與單位是？', options: ['溶質莫耳數/溶液升數', '溶質克數/溶劑升數', '溶質莫耳數/溶劑公斤數', '溶質體積/溶液體積'], ans: 0, hint: 'M 是以溶液的體積(公升)為分母。' },
+      { q: '平衡化學式：N2 + 3H2 → 2NH3，所有的係數總和為？', options: ['4', '5', '6', '7'], ans: 2, hint: '1 + 3 + 2 = ?' },
+      { q: '18克的水 (H2O) 等於幾莫耳？', options: ['0.5莫耳', '1莫耳', '2莫耳', '18莫耳'], ans: 1, hint: '莫耳數 = 質量 / 分子量。' },
+      { q: '原子核內通常包含哪兩種粒子？', options: ['質子與電子', '質子與中子', '中子與電子', '只有質子'], ans: 1, hint: '電子在原子核外圍環繞。' },
+      { q: '「質量數」的定義是什麼？', options: ['質子數 + 電子數', '中子數 + 電子數', '質子數 + 中子數', '原子的實際質量'], ans: 2, hint: '集中在原子核內的質量總和。' },
+      { q: '元素的化學性質主要取決於原子的哪一部分？', options: ['質子數', '中子數', '總電子數', '價電子數 (最外層電子)'], ans: 3, hint: '最外層的電子負責參與化學反應。' },
+      { q: '週期表上的「橫列」稱為什麼？', options: ['族', '週期', '類別', '區'], ans: 1, hint: '直行稱為「族」，橫列稱為「?」。' },
+      { q: '週期表中的第1族元素 (不含氫) 統稱為什麼？', options: ['鹼土金屬', '鹼金屬', '鹵素', '惰性氣體'], ans: 1, hint: '碰到水會產生強鹼性溶液。' },
+      { q: '重量百分率濃度 (W%) 的公式是？', options: ['(溶質重/溶劑重)×100%', '(溶質重/溶液重)×100%', '(溶液重/溶質重)×100%', '(溶劑重/溶液重)×100%'], ans: 1, hint: '分母必須是「整杯溶液」的總重量。' },
+      { q: '常溫常壓下，唯一呈液態的非金屬元素是？', options: ['汞 (Hg)', '溴 (Br)', '碘 (I)', '氯 (Cl)'], ans: 1, hint: '汞是金屬；鹵素中的「臭」是液態。' },
+      { q: '密度的公式為何？', options: ['質量 × 體積', '體積 / 質量', '質量 / 體積', '質量 + 體積'], ans: 2, hint: 'D = M / V。' },
+      { q: '氫氣燃燒後的產物是什麼？', options: ['二氧化碳', '水', '一氧化碳', '過氧化氫'], ans: 1, hint: 'H2 + O2 → ?' },
+      { q: '測量液體體積時，實驗室最常使用的玻璃儀器是？', options: ['燒杯', '錐形瓶', '試管', '量筒'], ans: 3, hint: '上面有精確的刻度，專門用來「量」體積。' },
+      { q: '酸性溶液的 pH 值範圍為何？', options: ['小於 7', '等於 7', '大於 7', '等於 14'], ans: 0, hint: '中性是 7。' },
+      { q: '硫酸 (H2SO4) 的分子量為？', options: ['98', '49', '63', '36.5'], ans: 0, hint: '(1×2) + 32 + (16×4)。' },
+      { q: '某溶液 2 公升中含有 1 莫耳溶質，其體積莫耳濃度為？', options: ['2 M', '1 M', '0.5 M', '0.1 M'], ans: 2, hint: 'M = 莫耳數 / 體積 = 1 / 2。' },
+      { q: '88克的二氧化碳 (CO2) 含有幾莫耳的分子？', options: ['1 莫耳', '2 莫耳', '3 莫耳', '4 莫耳'], ans: 1, hint: 'CO2分子量為44，88 / 44 = ?' },
+      { q: '1莫耳的水分子 (H2O) 中，共含有幾個「氫原子」？', options: ['6.02 × 10²³', '1.204 × 10²⁴', '1', '2'], ans: 1, hint: '1個分子有2個氫原子，所以數量乘以2。' },
+      { q: '食鹽的主要成分「氯化鈉」的化學式是？', options: ['HCl', 'NaOH', 'NaCl', 'Na2CO3'], ans: 2, hint: '鈉與氯的化合物。' },
+      { q: '碳酸鈣 (CaCO3) 的分子量為？ (Ca=40)', options: ['100', '84', '106', '56'], ans: 0, hint: '40 + 12 + (16×3)。' },
+      { q: '下列何者是惰性氣體 (第18族)？', options: ['氧氣', '氯氣', '氦氣', '氮氣'], ans: 2, hint: '氣球常充填的安全氣體。' },
+      { q: '氯化氫 (HCl) 溶於水後的溶液稱為？', options: ['硫酸', '鹽酸', '硝酸', '碳酸'], ans: 1, hint: '胃酸的主要成分。' },
+      { q: '金屬「鈉」應該保存在什麼液體中以防氧化？', options: ['水', '酒精', '礦物油', '鹽水'], ans: 2, hint: '必須隔絕空氣與水分。' },
+      { q: '構成生命體最基礎的元素(有機物的核心)是？', options: ['氧', '氫', '氮', '碳'], ans: 3, hint: '有機化學又稱碳化合物的化學。' },
+      { q: '若將藍色石蕊試紙放入醋中，試紙會變成什麼顏色？', options: ['藍色', '紅色', '無色', '綠色'], ans: 1, hint: '酸性會使石蕊試紙變紅。' },
+      { q: '週期表第2族金屬統稱為？', options: ['鹼土金屬', '鹼金屬', '鹵素', '過渡金屬'], ans: 0, hint: '包含鈹、鎂、鈣等。' },
+      { q: '電子帶有何種電荷？', options: ['負電', '正電', '不帶電', '視情況而定'], ans: 0, hint: '原子核外的基本粒子。' },
+      { q: '純水在常溫下的 pH 值約為多少？', options: ['7', '0', '14', '1'], ans: 0, hint: '呈中性。' },
+      { q: '地球大氣中含量最多的氣體是？', options: ['氮氣', '氧氣', '二氧化碳', '氬氣'], ans: 0, hint: '約佔空氣的 78%。' },
+      { q: '鑽石主要是由哪一種元素構成的？', options: ['碳', '矽', '氧', '鐵'], ans: 0, hint: '與石墨是同素異形體。' },
+      { q: '下列何者屬於「混合物」？', options: ['空氣', '氧氣', '純水', '鐵塊'], ans: 0, hint: '由多種純物質組成，無固定沸點。' },
+      { q: '雙氧水的化學式為？', options: ['H2O2', 'H2O', 'HO', 'H2O3'], ans: 0, hint: '比水多一個氧原子。' },
+      { q: '燃燒反應的必備條件之一，是需要下列何種氣體助燃？', options: ['氧氣', '氮氣', '二氧化碳', '氫氣'], ans: 0, hint: '空氣中佔約 21% 的氣體。' },
+      { q: '下列何者屬於「物理變化」？', options: ['冰融化成水', '鐵生鏽', '木材燃燒', '蘋果變色'], ans: 0, hint: '沒有產生新物質的變化。' },
+      { q: '鈉離子的化學符號是？', options: ['Na⁺', 'Na⁻', 'N⁺', 'Na²⁺'], ans: 0, hint: '鈉失去一個電子。' },
+      { q: '臭氧的化學式是？', options: ['O3', 'O2', 'O', 'H2O'], ans: 0, hint: '由三個氧原子組成。' },
+      { q: '下列哪一種物質具有固定的熔點與沸點？', options: ['純物質', '混合物', '溶液', '合金'], ans: 0, hint: '組成固定的物質。' },
+      { q: '鐵生鏽是屬於何種化學反應？', options: ['氧化反應', '中和反應', '核反應', '還原反應'], ans: 0, hint: '與氧氣結合的過程。' },
+      { q: '目前的元素週期表大約包含幾個元素？', options: ['118', '92', '100', '150'], ans: 0, hint: '包含自然界與人工合成的總數。' },
+      { q: '下列何者是化學變化？', options: ['食物消化', '水結冰', '撕碎紙張', '玻璃破碎'], ans: 0, hint: '產生了與原本不同性質的新物質。' },
+      { q: '下列何種金屬在常溫常壓下為液態？', options: ['汞', '鐵', '銅', '金'], ans: 0, hint: '俗稱水銀。' },
+      { q: '食鹽溶於水，是屬於何種變化？', options: ['物理變化', '化學變化', '核變化', '發光變化'], ans: 0, hint: '水分蒸發後還能得到食鹽，沒有新物質。' },
+      { q: '乾冰是什麼物質的固態？', options: ['二氧化碳', '水', '一氧化碳', '氮氣'], ans: 0, hint: '昇華時會吸收大量熱量。' },
+      { q: '下列哪種離子存在會使水溶液呈現鹼性？', options: ['OH⁻', 'H⁺', 'Na⁺', 'Cl⁻'], ans: 0, hint: '氫氧根離子。' },
+      { q: '當酸鹼中和時，一定會產生哪種物質？', options: ['鹽類', '氣體', '沉澱', '強酸'], ans: 0, hint: '酸+鹼 → 鹽+水。' }
+    ];
+
+    const advancedQuestions = [
+      { q: '在 STP (0°C, 1atm) 下，1莫耳氣體體積約為？', options: ['22.4 L', '24.5 L', '20.0 L', '100 L'], ans: 0, hint: '請記住 22.4。' },
+      { q: '理想氣體方程式為何？', options: ['P/V = nRT', 'PV = nRT', 'PT = nRV', 'V = nRP'], ans: 1, hint: '壓力×體積 = 莫耳數×常數×絕對溫度。' },
+      { q: '波以耳定律指出，在定溫下，定量氣體的P與V呈何關係？', options: ['正比', '反比', '平方正比', '無關'], ans: 1, hint: '體積壓縮一半，壓力變兩倍。' },
+      { q: '取 0.5 M 的 NaOH 溶液 200 mL，含有多少莫耳 NaOH？', options: ['1 莫耳', '0.5 莫耳', '0.1 莫耳', '100 莫耳'], ans: 2, hint: '莫耳數 = M × 體積(L) = 0.5 × 0.2。' },
+      { q: '12 M 濃鹽酸 100 mL 加水稀釋至 1.2 M，總體積為多少？', options: ['1000 mL', '900 mL', '120 mL', '1200 mL'], ans: 0, hint: 'M1V1 = M2V2 ➜ 12×100 = 1.2×V2。' },
+      { q: '10克氫氣(H2)完全燃燒，需要多少克氧氣(O2)？', options: ['80 克', '40 克', '16 克', '32 克'], ans: 0, hint: '5莫耳氫需2.5莫耳氧。2.5 × 32。' },
+      { q: '某金屬氧化物 M2O3 分子量為 102，M 的原子量為？', options: ['54', '27', '13.5', '48'], ans: 1, hint: '2M + 48 = 102。' },
+      { q: '同位素是指「原子序相同」，但什麼不同的原子？', options: ['電子數', '質子數', '質量數', '化學性質'], ans: 2, hint: '例如碳-12與碳-14。' },
+      { q: '氯的同位素 Cl-35 佔75%，Cl-37 佔25%，平均原子量約為？', options: ['36', '35.5', '36.5', '35'], ans: 1, hint: '(35×0.75) + (37×0.25)。' },
+      { q: '氧化還原反應中，「失去電子」的過程稱為？', options: ['氧化', '還原', '中和', '沉澱'], ans: 0, hint: '得到電子為還原，失去電子為...。' },
+      { q: 'pH=3 的鹽酸溶液，其氫離子濃度 [H+] 為何？', options: ['0.3 M', '3 M', '10⁻³ M', '10³ M'], ans: 2, hint: 'pH = -log[H+]。' },
+      { q: '同分異構物的定義為何？', options: ['分子式相同，結構不同', '結構相同，分子式不同', '質量數相同', '由同種原子組成的單質'], ans: 0, hint: '例如乙醇與甲醚。' },
+      { q: '化學反應中的「限量試劑」是指？', options: ['質量最少', '最先被消耗完', '體積最小', '價格最貴'], ans: 1, hint: '決定了產物的最大生成量。' },
+      { q: '查理定律指出，定壓下體積與「絕對溫度」呈何關係？', options: ['正比', '反比', '平方反比', '無關'], ans: 0, hint: '溫度越高，氣體膨脹體積越大。' },
+      { q: '濃度單位 ppm (百萬分點) 代表的意義是？', options: ['1L含1g', '1L含1mg', '1L含1mol', '100g含1g'], ans: 1, hint: '1 mg / 1 L = 1/1000000。' },
+      { q: '電解水實驗中，連接電池「正極」會產生哪種氣體？', options: ['氫氣', '氧氣', '氯氣', '水蒸氣'], ans: 1, hint: '負極產生氫氣，正極產生氧氣。' },
+      { q: '濃硫酸滴在方糖上會使方糖變黑，是因為濃硫酸具有？', options: ['強酸性', '強氧化性', '強脫水性', '強腐蝕性'], ans: 2, hint: '奪走糖中的氫和氧。' },
+      { q: '哈伯法製氨時，常添加何種金屬作為催化劑？', options: ['鉑 (Pt)', '金 (Au)', '鐵粉 (Fe)', '銅 (Cu)'], ans: 2, hint: '鐵觸媒。' },
+      { q: '下列金屬中，對水的活性最大的是？', options: ['銅 (Cu)', '鐵 (Fe)', '鎂 (Mg)', '鉀 (K)'], ans: 3, hint: '活性表：鉀鈉鈣鎂鋁...。' },
+      { q: '中和反應的通式通常是：酸 + 鹼 → ？', options: ['鹽 + 水', '氣體 + 水', '酸性鹽 + 氫氣', '金屬 + 水'], ans: 0, hint: '例如 HCl + NaOH → NaCl + H2O。' },
+      { q: '電子組態中，L層 (n=2) 最多可容納幾個電子？', options: ['2', '8', '18', '32'], ans: 1, hint: '公式為 2n²。' },
+      { q: '「百分產率」的計算公式為何？', options: ['理論/實際', '實際/理論 × 100%', '誤差/理論', '理論/莫耳數'], ans: 1, hint: '你實際做出來的量，佔理論的百分比。' },
+      { q: '下列哪組是同素異形體？', options: ['水與雙氧水', '石墨與金剛石', 'CO與CO2', '葡萄糖與果糖'], ans: 1, hint: '兩者都是純碳構成。' },
+      { q: '溶液密度為 1.2 g/mL，取該溶液 100 mL，質量為？', options: ['120 g', '100 g', '83.3 g', '1.2 g'], ans: 0, hint: '質量 = 密度 × 體積。' },
+      { q: '系統受干擾會朝減輕干擾的方向移動，稱為何原理？', options: ['亞佛加厥', '勒沙特列', '波以耳', '赫斯'], ans: 1, hint: 'Le Chatelier 原理。' },
+      { q: '「氧化劑」在反應中的行為是？', options: ['使他物氧化，本身失去電子', '使他物氧化，本身得到電子', '使他物還原', '不參與反應'], ans: 1, hint: '搶走別人的電子。' },
+      { q: 'CH4 + 2O2 → CO2 + 2H2O。若有 16g 甲烷參與反應，產生幾克水？', options: ['18g', '36g', '72g', '16g'], ans: 1, hint: '1莫耳甲烷產生2莫耳水(36g)。' },
+      { q: 'NTP (25°C, 1atm) 下，1莫耳氣體的體積約為？', options: ['22.4 L', '24.5 L', '20 L', '100 L'], ans: 1, hint: 'STP是22.4，NTP是 24.5。' },
+      { q: '配製 0.1 M NaCl 溶液 500 mL，需多少克 NaCl？', options: ['58.5 g', '5.85 g', '2.925 g', '29.25 g'], ans: 2, hint: '莫耳數=0.05 mol。' },
+      { q: '硝酸 (HNO3) 易光解，因此通常保存在什麼顏色的瓶子？', options: ['透明瓶', '棕色瓶', '藍色瓶', '白色瓶'], ans: 1, hint: '為了阻擋光線。' },
+      { q: '同溫同壓下，同體積任何氣體含有相同分子數，這是什麼定律？', options: ['亞佛加厥', '波以耳', '查理', '給呂薩克'], ans: 0, hint: '體積與莫耳數成正比。' },
+      { q: '在 0.1 M 的 HCl 中，pH 值約為？', options: ['1', '0.1', '2', '7'], ans: 0, hint: 'pH = -log(10⁻¹)。' },
+      { q: '可逆反應達到「化學平衡」時，下列敘述何者正確？', options: ['正逆反應速率相等', '反應停止', '反應物耗盡', '產物為零'], ans: 0, hint: '微觀反應持續進行，但速率相等。' },
+      { q: '何者最容易失去電子(發生氧化)？', options: ['鉀 (K)', '鐵 (Fe)', '銅 (Cu)', '金 (Au)'], ans: 0, hint: '活潑性越強的金屬越容易成為陽離子。' },
+      { q: '下列何者為強電解質？', options: ['食鹽水', '純水', '糖水', '酒精'], ans: 0, hint: '強酸、強鹼與可溶性鹽類。' },
+      { q: '1 M HCl 溶液 1 L，加水稀釋至總體積 10 L，濃度變為？', options: ['0.1 M', '10 M', '0.01 M', '1 M'], ans: 0, hint: '濃度變為原來的十分之一。' },
+      { q: 'pH=2 溶液的 [H⁺] 是 pH=4 溶液的幾倍？', options: ['100倍', '2倍', '20倍', '1000倍'], ans: 0, hint: 'pH 值差 2，濃度差 10² 倍。' },
+      { q: '催化劑能加快反應速率的原因是？', options: ['降低活化能', '增加動能', '改變反應熱', '增加碰撞'], ans: 0, hint: '提供能量門檻較低的途徑。' },
+      { q: '定容下，絕對溫度(K)變為 2 倍，壓力會變為？', options: ['2倍', '0.5倍', '4倍', '不變'], ans: 0, hint: 'P 與 T 成正比。' },
+      { q: '基態電子組態價殼層為 3s¹ 的元素為？', options: ['鈉 (Na)', '鋰 (Li)', '鉀 (K)', '鎂 (Mg)'], ans: 0, hint: '第3週期，第1族。' },
+      { q: '氯化鈉 (NaCl) 晶體中的化學鍵為？', options: ['離子鍵', '共價鍵', '金屬鍵', '氫鍵'], ans: 0, hint: '金屬與非金屬間的鍵結。' },
+      { q: '碳-12 和 碳-14 互為？', options: ['同位素', '同分異構物', '同素異形體', '同系物'], ans: 0, hint: '質子相同，中子不同。' },
+      { q: '何氣體在常溫純水中溶解度最小？', options: ['氮氣', '氨氣', '氯化氫', '二氧化硫'], ans: 0, hint: '非極性分子。' },
+      { q: '下列何者為「吸熱反應」？', options: ['光合作用', '木材燃燒', '酸鹼中和', '水結冰'], ans: 0, hint: '需要吸收太陽能。' },
+      { q: '冶煉金屬常用何種物質作廉價「還原劑」？', options: ['一氧化碳', '氧氣', '氯氣', '濃硫酸'], ans: 0, hint: '高爐煉鐵中使用。' },
+      { q: '理想氣體常數 R 約為？', options: ['0.082', '8.314', '1.987', '6.02'], ans: 0, hint: '單位為 atm·L/mol·K。' },
+      { q: '水分子間的「氫鍵」使沸點如何變化？', options: ['異常升高', '異常降低', '不受影響', '降至零下'], ans: 0, hint: '需要更多能量才能拆散。' },
+      { q: '配製 0.1 M NaOH 溶液 100 mL，需 NaOH 幾克？', options: ['0.4 克', '4 克', '40 克', '0.04 克'], ans: 0, hint: '分子量=40。' },
+      { q: '標準狀況 (STP) 是指何條件？', options: ['0°C, 1 atm', '25°C, 1 atm', '0 K, 1 atm', '100°C, 1 atm'], ans: 0, hint: '冰點與大氣壓。' },
+      { q: '銅片放入無色硝酸銀溶液，溶液會變成？', options: ['藍色', '紅色', '黃色', '綠色'], ans: 0, hint: '銅離子(Cu²⁺)的顏色。' }
+    ];
+
+    const gcd = (a, b) => (b === 0 ? a : gcd(b, a % b));
+    const renderIon = (ion) => (
+      <span>{ion.base}{ion.sub && <sub>{ion.sub}</sub>}<sup>{ion.chargeStr}</sup></span>
+    );
+
+    // ================= 主元件 =================
+    function App() {
+      const [currentView, setCurrentView] = useState('menu');
+
+      return (
+        <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 text-gray-800 font-sans p-4 md:p-8">
+          <div className="max-w-4xl mx-auto bg-white rounded-3xl shadow-xl overflow-hidden border-4 border-indigo-200">
+            <header className="bg-indigo-600 text-white p-6 text-center relative">
+              {currentView !== 'menu' && (
+                <button 
+                  onClick={() => setCurrentView('menu')}
+                  className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white text-indigo-600 px-4 py-2 rounded-full font-bold shadow hover:bg-indigo-50 transition"
+                >
+                  ← 回首頁
+                </button>
+              )}
+              <h1 className="text-3xl font-extrabold tracking-wider">🧪 化學元素魔法學院</h1>
+              <p className="mt-2 text-indigo-100">118元素 ・ 離子配對 ・ 化學常識</p>
+            </header>
+
+            <div className="p-6 md:p-10 min-h-[500px]">
+              {currentView === 'menu' && <MainMenu setView={setCurrentView} />}
+              {currentView === 'learn' && <LearnSection />}
+              {currentView === 'elementQuiz' && <ElementQuiz />}
+              {currentView === 'compoundGame' && <CompoundGame />}
+              {currentView === 'ionSort' && <IonSortGame />}
+              {currentView === 'comprehensiveBasic' && <ComprehensiveQuiz mode="basic" title="🌱 關卡三：常識測驗(基礎)" questionsPool={basicQuestions} goBack={() => setCurrentView('menu')} />}
+              {currentView === 'comprehensiveAdvanced' && <ComprehensiveQuiz mode="advanced" title="🔥 關卡三：常識測驗(進階)" questionsPool={advancedQuestions} goBack={() => setCurrentView('menu')} />}
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // ================= 主選單 =================
+    function MainMenu({ setView }) {
+      const menus = [
+        { id: 'learn', title: '📖 考前秘笈 (學習區)', desc: '學習118種元素口訣與分類', color: 'bg-green-100 hover:bg-green-200 border-green-300' },
+        { id: 'elementQuiz', title: '🎯 關卡一：元素單字卡', desc: '118個中英文符號與名稱大挑戰', color: 'bg-amber-100 hover:bg-amber-200 border-amber-300' },
+        { id: 'compoundGame', title: '⚖️ 關卡二：化合物配對', desc: '練習正負價數總和為零的拼圖', color: 'bg-blue-100 hover:bg-blue-200 border-blue-300' },
+        { id: 'ionSort', title: '⚡ 關卡二：陰陽離子分類', desc: '快速判斷失去或得到電子的離子', color: 'bg-purple-100 hover:bg-purple-200 border-purple-300' },
+        { id: 'comprehensiveBasic', title: '🌱 關卡三：常識測驗(基礎)', desc: '高一化學基礎：分子量、原子結構', color: 'bg-emerald-100 hover:bg-emerald-200 border-emerald-300' },
+        { id: 'comprehensiveAdvanced', title: '🔥 關卡三：常識測驗(進階)', desc: '高一化學進階：氣體定律、濃度計算', color: 'bg-rose-100 hover:bg-rose-200 border-rose-300' },
+      ];
+
+      return (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-fade-in">
+          {menus.map((m) => (
+            <button key={m.id} onClick={() => setView(m.id)} className={`flex flex-col items-center justify-center p-8 rounded-2xl border-2 transition-all transform hover:scale-105 shadow-sm ${m.color}`}>
+              <h2 className="text-2xl font-bold mb-2 text-gray-800">{m.title}</h2>
+              <p className="text-gray-600 font-medium">{m.desc}</p>
+            </button>
+          ))}
+        </div>
+      );
+    }
+
+    // ================= 1. 學習區 =================
+    function LearnSection() {
+      const [filter, setFilter] = useState('all');
+
+      const categories = [
+        { id: 'all', name: '全週期表 (118元素)' },
+        { id: 'alkali', name: '鹼金屬 (1A)' },
+        { id: 'alkaline-earth', name: '鹼土金屬 (2A)' },
+        { id: 'transition', name: '過渡金屬' },
+        { id: 'post-transition', name: '貧金屬' },
+        { id: 'metalloid', name: '類金屬' },
+        { id: 'nonmetal', name: '非金屬' },
+        { id: 'halogen', name: '鹵素 (7A)' },
+        { id: 'noble-gas', name: '惰性氣體 (8A)' },
+        { id: 'lanthanide', name: '鑭系' },
+        { id: 'actinide', name: '錒系' },
+      ];
+
+      const catColors = {
+        'alkali': 'bg-red-50 border-red-200 text-red-800',
+        'alkaline-earth': 'bg-orange-50 border-orange-200 text-orange-800',
+        'transition': 'bg-yellow-50 border-yellow-200 text-yellow-800',
+        'post-transition': 'bg-emerald-50 border-emerald-200 text-emerald-800',
+        'metalloid': 'bg-teal-50 border-teal-200 text-teal-800',
+        'nonmetal': 'bg-blue-50 border-blue-200 text-blue-800',
+        'halogen': 'bg-indigo-50 border-indigo-200 text-indigo-800',
+        'noble-gas': 'bg-purple-50 border-purple-200 text-purple-800',
+        'lanthanide': 'bg-pink-50 border-pink-200 text-pink-800',
+        'actinide': 'bg-rose-50 border-rose-200 text-rose-800',
+      };
+
+      const filteredElements = filter === 'all' ? allElements : allElements.filter(e => e.c === filter);
+
+      return (
+        <div className="space-y-6 animate-fade-in">
+          <div className="bg-indigo-50 p-4 md:p-6 rounded-2xl border-l-8 border-indigo-400 shadow-sm">
+            <h2 className="text-2xl font-bold text-indigo-800 mb-4">🧠 週期表主族記憶口訣</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              {groupMnemonics.map(m => (
+                <div key={m.group} className="bg-white p-3 rounded-xl shadow-sm border border-indigo-100">
+                  <div className="text-sm font-bold text-indigo-600 mb-1">{m.group}</div>
+                  <div className="text-lg font-black tracking-widest">{m.els}</div>
+                  <div className="text-sm text-gray-500 mt-1">諧音：<span className="text-red-500 font-bold">{m.hint}</span></div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="flex flex-wrap gap-2 py-2">
+            {categories.map(c => (
+              <button key={c.id} onClick={() => setFilter(c.id)} className={`px-4 py-2 rounded-full font-bold text-sm transition-all border-2 ${filter === c.id ? 'bg-indigo-600 text-white border-indigo-600 shadow-md scale-105' : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'}`}>
+                {c.name}
+              </button>
+            ))}
+          </div>
+
+          <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3">
+            {filteredElements.map((e) => (
+              <div key={e.id} className={`border-2 p-3 rounded-xl shadow-sm text-center transition transform hover:scale-105 ${catColors[e.c] || 'bg-white border-gray-200'}`}>
+                <div className="text-xs font-bold text-gray-400 text-left mb-1">{e.id}</div>
+                <div className="text-3xl font-black mb-1 text-gray-800">{e.s}</div>
+                <div className="text-lg font-bold text-gray-700">{e.n}</div>
+                <div className="text-xs font-medium opacity-70 mt-1">{e.b}</div>
+              </div>
+            ))}
+          </div>
+          {filteredElements.length === 0 && <div className="text-center py-10 text-gray-500">此類別沒有找到元素。</div>}
+        </div>
+      );
+    }
+
+    // ================= 2. 元素單字卡測驗 (關卡一) =================
+    function ElementQuiz() {
+      const [questions, setQuestions] = useState([]);
+      const [currentQ, setCurrentQ] = useState(0);
+      const [score, setScore] = useState(0);
+      const [showResult, setShowResult] = useState(false);
+      const [feedback, setFeedback] = useState(null);
+
+      const initQuiz = () => {
+        const newQs = [];
+        for (let i = 0; i < 10; i++) {
+          const target = allElements[Math.floor(Math.random() * allElements.length)];
+          const askSymbol = Math.random() > 0.5;
+          let options = new Set([askSymbol ? target.s : target.n]);
+          while(options.size < 4) {
+             const randomEl = allElements[Math.floor(Math.random() * allElements.length)];
+             options.add(askSymbol ? randomEl.s : randomEl.n);
+          }
+          const optionsArr = Array.from(options).sort(() => 0.5 - Math.random());
+          newQs.push({
+            targetDisplay: askSymbol ? target.n : target.s,
+            qText: askSymbol ? `請選出「${target.n}」的英文符號` : `請問「${target.s}」是哪一個中文元素？`,
+            options: optionsArr,
+            ans: optionsArr.indexOf(askSymbol ? target.s : target.n),
+            hint: `${target.s} = ${target.n} (${target.b})`
+          });
+        }
+        setQuestions(newQs);
+        setCurrentQ(0);
+        setScore(0);
+        setShowResult(false);
+        setFeedback(null);
+      };
+
+      useEffect(() => { initQuiz(); }, []);
+
+      const handleAnswer = (index) => {
+        if (feedback) return;
+        const isCorrect = index === questions[currentQ].ans;
+        if (isCorrect) setScore(score + 1);
+        setFeedback({
+          correct: isCorrect,
+          text: isCorrect ? '✅ 答對了！' : `❌ 答錯了。正確答案是 ${questions[currentQ].options[questions[currentQ].ans]}。`,
+          hint: questions[currentQ].hint
+        });
+        setTimeout(() => {
+          setFeedback(null);
+          if (currentQ + 1 < questions.length) setCurrentQ(currentQ + 1);
+          else setShowResult(true);
+        }, 2000);
+      };
+
+      if (questions.length === 0) return <div>載入中...</div>;
+      if (showResult) {
+        return (
+          <div className="text-center py-10 animate-fade-in">
+            <h2 className="text-3xl font-bold mb-4">單字卡測驗結束！</h2>
+            <p className="text-2xl mb-8">你的得分：<span className="text-amber-600 font-black text-4xl">{score}</span> / {questions.length}</p>
+            <button onClick={initQuiz} className="bg-amber-500 text-white px-8 py-4 rounded-xl font-bold text-xl hover:bg-amber-600 shadow-md transition transform hover:scale-105">
+              🔄 隨機換下一批單字卡
+            </button>
+          </div>
+        );
+      }
+      const q = questions[currentQ];
+      return (
+        <div className="max-w-2xl mx-auto py-4 animate-fade-in">
+          <div className="flex justify-between items-center mb-4 bg-gray-100 p-4 rounded-xl">
+            <div className="text-sm text-gray-500 font-bold">進度：{currentQ + 1} / {questions.length} 題</div>
+            <div className="text-sm text-amber-600 font-bold">目前得分：{score}</div>
+          </div>
+          <div className="bg-amber-50 border-4 border-amber-300 p-12 rounded-3xl my-6 shadow-md text-center">
+            <div className="text-lg font-bold text-amber-600 mb-4">{q.qText}</div>
+            <h2 className="text-7xl font-black text-gray-800 tracking-wider drop-shadow-sm">{q.targetDisplay}</h2>
+          </div>
+          <div className="grid grid-cols-2 gap-4 mb-6">
+            {q.options.map((opt, idx) => (
+              <button key={idx} onClick={() => handleAnswer(idx)} disabled={!!feedback} className={`p-6 text-3xl font-bold rounded-2xl border-2 transition-all ${feedback && idx === q.ans ? 'bg-green-200 border-green-500 shadow-lg transform scale-105' : feedback && idx !== q.ans ? 'bg-gray-100 border-gray-200 text-gray-400 opacity-50' : 'bg-white border-amber-200 text-gray-700 hover:bg-amber-50 hover:shadow-md'}`}>
+                {opt}
+              </button>
+            ))}
+          </div>
+          {feedback && (
+            <div className={`p-4 rounded-xl border-2 animate-bounce shadow-sm ${feedback.correct ? 'bg-green-100 border-green-400 text-green-800' : 'bg-red-100 border-red-400 text-red-800'}`}>
+              <div className="font-bold text-xl mb-1">{feedback.text}</div>
+              <div className="text-md mt-1">💡 記憶提示：{feedback.hint}</div>
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    // ================= 3. 化合物配對 (關卡二) =================
+    function CompoundGame() {
+      const [cat, setCat] = useState(cations[0]);
+      const [an, setAn] = useState(anions[0]);
+      const [inputCat, setInputCat] = useState('');
+      const [inputAn, setInputAn] = useState('');
+      const [message, setMessage] = useState(null);
+
+      const newQuestion = () => {
+        setCat(cations[Math.floor(Math.random() * cations.length)]);
+        setAn(anions[Math.floor(Math.random() * anions.length)]);
+        setInputCat('');
+        setInputAn('');
+        setMessage(null);
+      };
+
+      useEffect(() => { newQuestion(); }, []);
+
+      const checkAnswer = () => {
+        const x = parseInt(inputCat);
+        const y = parseInt(inputAn);
+        if (isNaN(x) || isNaN(y) || x <= 0 || y <= 0) {
+          setMessage({ type: 'error', text: '請輸入大於 0 的正整數喔！' }); return;
+        }
+        const totalCharge = (x * cat.charge) + (y * an.charge);
+        const d = gcd(x, y);
+        if (totalCharge === 0) {
+          if (d === 1) setMessage({ type: 'success', text: `🎉 完美！ ${x}×(+${cat.charge}) + ${y}×(${an.charge}) = 0。` });
+          else setMessage({ type: 'warning', text: `🤔 電荷平衡了，但不是最簡整數比喔！試試約分除以 ${d}。` });
+        } else {
+          setMessage({ type: 'error', text: `💥 不平衡喔！目前總電荷為 ${totalCharge > 0 ? '+' : ''}${totalCharge}。` });
+        }
+      };
+
+      return (
+        <div className="py-6 animate-fade-in text-center">
+          <div className="mb-8">
+            <h2 className="text-2xl font-bold text-indigo-800 mb-2">⚖️ 組合化合物 (價數和為零)</h2>
+            <p className="text-gray-600">你需要幾個陽離子和幾個陰離子，才能讓化合物的「總電荷」為 0 呢？(請寫最簡整數比)</p>
+          </div>
+          <div className="flex flex-col md:flex-row justify-center items-center gap-6 mb-8">
+            <div className="bg-red-50 border-4 border-red-300 p-6 rounded-2xl w-48 text-center shadow-lg">
+              <div className="text-4xl font-bold text-red-600 mb-2">{renderIon(cat)}</div>
+              <div className="text-sm font-bold text-red-800">{cat.name}</div>
+              <div className="mt-4">
+                <input type="number" min="1" value={inputCat} onChange={(e) => setInputCat(e.target.value)} placeholder="數量" className="w-24 p-2 text-center text-xl font-bold rounded border-2 border-red-300" />
+                <span className="ml-2 font-bold text-gray-500">個</span>
+              </div>
+            </div>
+            <div className="text-5xl font-black text-gray-300">+</div>
+            <div className="bg-blue-50 border-4 border-blue-300 p-6 rounded-2xl w-48 text-center shadow-lg">
+              <div className="text-4xl font-bold text-blue-600 mb-2">{renderIon(an)}</div>
+              <div className="text-sm font-bold text-blue-800">{an.name}</div>
+              <div className="mt-4">
+                <input type="number" min="1" value={inputAn} onChange={(e) => setInputAn(e.target.value)} placeholder="數量" className="w-24 p-2 text-center text-xl font-bold rounded border-2 border-blue-300" />
+                <span className="ml-2 font-bold text-gray-500">個</span>
+              </div>
+            </div>
+          </div>
+          <div className="space-x-4 mb-6">
+            <button onClick={checkAnswer} className="bg-green-500 text-white px-8 py-3 rounded-xl font-bold text-xl hover:bg-green-600 shadow transition">送出檢查 ✅</button>
+            {message && message.type === 'success' && <button onClick={newQuestion} className="bg-indigo-600 text-white px-8 py-3 rounded-xl font-bold text-xl hover:bg-indigo-700 shadow transition">下一題 ➡️</button>}
+          </div>
+          {message && (
+            <div className={`max-w-md mx-auto p-4 rounded-xl font-bold border-2 ${message.type === 'success' ? 'bg-green-100 border-green-500 text-green-800' : message.type === 'warning' ? 'bg-yellow-100 border-yellow-500 text-yellow-800' : 'bg-red-100 border-red-500 text-red-800'}`}>
+              {message.text}
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    // ================= 4. 陰陽離子分類賽 (關卡二) =================
+    function IonSortGame() {
+      const allIons = [...cations, ...anions];
+      const [currentIon, setCurrentIon] = useState(allIons[0]);
+      const [score, setScore] = useState(0);
+      const [streak, setStreak] = useState(0);
+      const [feedback, setFeedback] = useState(null);
+
+      const nextIon = () => { setCurrentIon(allIons[Math.floor(Math.random() * allIons.length)]); setFeedback(null); };
+      useEffect(() => { nextIon(); }, []);
+
+      const handleSort = (type) => {
+        if (feedback) return;
+        const isCation = currentIon.charge > 0;
+        const correct = (type === 'cation' && isCation) || (type === 'anion' && !isCation);
+        if (correct) {
+          setScore(score + 10); setStreak(streak + 1);
+          setFeedback({ correct: true, text: `✅ 正確！${currentIon.name} 是${isCation ? '陽' : '陰'}離子。` });
+        } else {
+          setStreak(0);
+          setFeedback({ correct: false, text: `❌ 錯誤！帶有 ${currentIon.chargeStr} 電荷的是${isCation ? '陽' : '陰'}離子。` });
+        }
+        setTimeout(nextIon, 1500);
+      };
+
+      return (
+        <div className="py-6 text-center max-w-lg mx-auto animate-fade-in">
+          <div className="flex justify-between items-center mb-6 bg-gray-100 p-4 rounded-xl font-bold">
+            <div className="text-xl text-indigo-700">分數: {score}</div>
+            <div className="text-xl text-orange-500">🔥 連勝: {streak}</div>
+          </div>
+          <div className="bg-white border-4 border-dashed border-indigo-200 p-10 rounded-3xl my-8 shadow-sm">
+            <div className="text-6xl font-black text-gray-800 mb-2">{renderIon(currentIon)}</div>
+            <div className="text-xl text-gray-600 font-bold">{currentIon.name}</div>
+          </div>
+          <div className="grid grid-cols-2 gap-6">
+            <button onClick={() => handleSort('cation')} className="bg-red-100 hover:bg-red-200 border-4 border-red-400 text-red-800 font-bold text-2xl py-6 rounded-2xl transition transform hover:scale-105">陽離子<br/><span className="text-sm">(帶正電 +)</span></button>
+            <button onClick={() => handleSort('anion')} className="bg-blue-100 hover:bg-blue-200 border-4 border-blue-400 text-blue-800 font-bold text-2xl py-6 rounded-2xl transition transform hover:scale-105">陰離子<br/><span className="text-sm">(帶負電 -)</span></button>
+          </div>
+          {feedback && <div className={`mt-6 p-4 rounded-xl font-bold text-lg ${feedback.correct ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>{feedback.text}</div>}
+        </div>
+      );
+    }
+
+    // ================= 5. 總合測驗 (關卡三) =================
+    function ComprehensiveQuiz({ mode, title, questionsPool, goBack }) {
+      const [gameState, setGameState] = useState('setup');
+      const [quizQuestions, setQuizQuestions] = useState([]);
+      const [currentQ, setCurrentQ] = useState(0);
+      const [score, setScore] = useState(0);
+      const [feedback, setFeedback] = useState(null);
+
+      const startGame = (count) => {
+        const shuffled = [...questionsPool].sort(() => 0.5 - Math.random());
+        setQuizQuestions(shuffled.slice(0, count));
+        setCurrentQ(0); setScore(0); setFeedback(null); setGameState('playing');
+      };
+
+      const handleAnswer = (index) => {
+        if (feedback) return;
+        const isCorrect = index === quizQuestions[currentQ].ans;
+        if (isCorrect) setScore(score + 1);
+        setFeedback({
+          correct: isCorrect,
+          text: isCorrect ? '✅ 答對了！' : `❌ 答錯了。正確答案是：${quizQuestions[currentQ].options[quizQuestions[currentQ].ans]}。`,
+          hint: quizQuestions[currentQ].hint
+        });
+        setTimeout(() => {
+          setFeedback(null);
+          if (currentQ + 1 < quizQuestions.length) setCurrentQ(currentQ + 1);
+          else setGameState('result');
+        }, 3000);
+      };
+
+      if (gameState === 'setup') {
+        return (
+          <div className="text-center py-10 animate-fade-in max-w-2xl mx-auto">
+            <h2 className="text-3xl font-extrabold mb-4 text-gray-800">{title}</h2>
+            <p className="text-lg text-gray-600 mb-8">題庫中共 {questionsPool.length} 題。請選擇你要挑戰的題數！</p>
+            <div className="flex flex-col sm:flex-row justify-center gap-4">
+              <button onClick={() => startGame(10)} className="bg-emerald-500 hover:bg-emerald-600 text-white px-8 py-4 rounded-xl font-bold text-xl shadow transform hover:scale-105">挑戰 10 題</button>
+              <button onClick={() => startGame(20)} className="bg-teal-500 hover:bg-teal-600 text-white px-8 py-4 rounded-xl font-bold text-xl shadow transform hover:scale-105">挑戰 20 題</button>
+              <button onClick={() => startGame(questionsPool.length)} className="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-4 rounded-xl font-bold text-xl shadow transform hover:scale-105">全部挑戰 ({questionsPool.length} 題)</button>
+            </div>
+          </div>
+        );
+      }
+
+      if (gameState === 'result') {
+        const percentage = Math.round((score / quizQuestions.length) * 100);
+        return (
+          <div className="text-center py-10 animate-fade-in max-w-2xl mx-auto">
+            <h2 className="text-3xl font-bold mb-4">測驗結束！</h2>
+            <div className="text-6xl mb-6">{percentage >= 80 ? '🏆' : percentage >= 60 ? '👍' : '💪'}</div>
+            <p className="text-2xl mb-4 text-gray-700">你的得分：<span className="text-indigo-600 font-black text-4xl">{score}</span> / {quizQuestions.length}</p>
+            <p className="text-xl mb-8 font-bold text-gray-500">正確率：{percentage}%</p>
+            <button onClick={() => setGameState('setup')} className="bg-indigo-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-indigo-700">🔄 重新選擇題數</button>
+          </div>
+        );
+      }
+
+      const q = quizQuestions[currentQ];
+      return (
+        <div className="max-w-3xl mx-auto py-4 animate-fade-in">
+          <div className="flex justify-between items-center mb-6 bg-gray-100 p-4 rounded-xl">
+            <div className="text-lg text-gray-500 font-bold">進度：{currentQ + 1} / {quizQuestions.length}</div>
+            <div className="text-lg text-indigo-600 font-bold">目前得分：{score}</div>
+          </div>
+          <h2 className="text-2xl font-bold mb-6 text-gray-800 leading-relaxed">{q.q}</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+            {q.options.map((opt, idx) => (
+              <button key={idx} onClick={() => handleAnswer(idx)} disabled={!!feedback} className={`p-5 text-lg font-bold rounded-xl border-2 transition-all ${feedback && idx === q.ans ? 'bg-green-200 border-green-500 text-green-900 shadow-md transform scale-105' : feedback && idx !== q.ans ? 'bg-gray-100 border-gray-200 text-gray-400 opacity-60' : 'bg-white border-indigo-200 text-gray-700 hover:bg-indigo-50 hover:shadow'}`}>
+                {opt}
+              </button>
+            ))}
+          </div>
+          {feedback && (
+            <div className={`p-4 rounded-xl border-2 animate-bounce shadow-sm ${feedback.correct ? 'bg-green-100 border-green-400 text-green-800' : 'bg-red-100 border-red-400 text-red-800'}`}>
+              <div className="font-bold text-xl mb-1">{feedback.text}</div>
+              <div className="text-md mt-2">💡 解析：{feedback.hint}</div>
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    // 將 App 渲染到畫面上
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
+  </script>
+</body>
+</html>
